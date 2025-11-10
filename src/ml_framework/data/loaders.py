@@ -1,7 +1,6 @@
 """
 Data loaders for HubSpot customer conversion prediction.
 
-NOW WITH DATA QUALITY CHECKS!
 """
 
 import pandas as pd
@@ -10,7 +9,6 @@ from pathlib import Path
 from typing import Tuple, Optional
 import logging
 
-# NEW IMPORTS
 from .validators import SchemaValidator, DataQualityProfiler, DataDeduplicator
 
 logger = logging.getLogger(__name__)
@@ -20,87 +18,30 @@ class HubSpotDataLoader:
     """
     Load and prepare HubSpot customer conversion data.
     
-    NOW INCLUDES:
     - Schema validation
     - Data quality profiling  
     - Duplicate handling
     - Data quality reporting
     """
-    COLUMN_DEFINITIONS = {
-        "id": {
-            "description": "Unique company identifier; also portal ID used in usage log.",
-            "semantic_type": "entity_id",
-            "dtype": "int",
-            "source": ["customers", "noncustomers", "usage_actions"]
-        },
-        "CLOSEDATE": {
-            "description": "Date when the company became a paying customer.",
-            "semantic_type": "event_timestamp",
-            "dtype": "datetime",
-            "source": ["customers"]
-        },
-        "MRR": {
-            "description": "Monthly Recurring Revenue at point of becoming a customer.",
-            "semantic_type": "numeric",
-            "dtype": "float",
-            "source": ["customers"]
-        },
-        "ALEXA_RANK": {
-            "description": "Web traffic ranking (lower = more traffic).",
-            "semantic_type": "ordinal_numeric",
-            "dtype": "int",
-            "source": ["customers", "noncustomers"]
-        },
-        "EMPLOYEE_RANGE": {
-            "description": "Employee count bucket; ranges like '11 to 25' or '10,001 or more'.",
-            "semantic_type": "categorical_range",
-            "dtype": "string",
-            "source": ["customers", "noncustomers"]
-        },
-        "INDUSTRY": {
-            "description": "Industry classification of company.",
-            "semantic_type": "categorical",
-            "dtype": "string",
-            "source": ["customers", "noncustomers"]
-        },
-        "WHEN_TIMESTAMP": {
-            "description": "Timestamp at which usage activity was logged.",
-            "semantic_type": "event_timestamp",
-            "dtype": "datetime",
-            "source": ["usage_actions"]
-        }
-    }
-
-    USAGE_METRIC_DEFINITIONS = {
-        "ACTIONS_CRM_CONTACTS":  "Total number of CRM Contacts actions.",
-        "ACTIONS_CRM_COMPANIES": "Total number of CRM Companies actions.",
-        "ACTIONS_CRM_DEALS":     "Total number of CRM Deals actions.",
-        "ACTIONS_EMAIL":         "Total number of Email actions.",
-        "USERS_CRM_CONTACTS":    "Unique users interacting with Contacts.",
-        "USERS_CRM_COMPANIES":   "Unique users interacting with Companies.",
-        "USERS_CRM_DEALS":       "Unique users interacting with Deals.",
-        "USERS_EMAIL":           "Unique users interacting with Email."
-    }
-
-    # You may combine them for convenience:
-    COLUMN_DEFINITIONS.update(USAGE_METRIC_DEFINITIONS)
-
     def __init__(
         self,
         customers_path: str,
         noncustomers_path: str,
         usage_path: str,
         lookback_days: int = 30,
-        validate_schema: bool = True,      # NEW!
-        profile_data: bool = True,          # NEW!
-        handle_duplicates: bool = True,     # NEW!
-        duplicate_strategy: str = 'most_complete'  # NEW!
+        validate_schema: bool = True,      
+        profile_data: bool = True,          
+        handle_duplicates: bool = True,     
+        duplicate_strategy: str = 'most_complete'  
     ):
         """
         Initialize data loader with quality checks.
         
         Args:
-            ... (existing args)
+            customers_path: Path to customers CSV file
+            noncustomers_path: Path to non-customers (prospects) CSV file
+            usage_path: Path to usage actions CSV file
+            lookback_days: Number of days to include in usage aggregation window
             validate_schema: Whether to validate schemas
             profile_data: Whether to profile data quality
             handle_duplicates: Whether to remove duplicates
@@ -111,7 +52,7 @@ class HubSpotDataLoader:
         self.usage_path = Path(usage_path)
         self.lookback_days = lookback_days
         
-        # NEW: Data quality components
+        # Data quality components
         self.validate_schema = validate_schema
         self.profile_data = profile_data
         self.handle_duplicates = handle_duplicates
@@ -210,8 +151,11 @@ class HubSpotDataLoader:
     
     def _aggregate_usage_features(self, usage: pd.DataFrame) -> pd.DataFrame:
         """
-        Aggregate usage actions into meaningful features.
-        
+        Aggregate usage actions into meaningful features per company.
+    
+        Creates statistical aggregations (sum, mean, max, std) for each action type,
+        plus derived features like total_actions, actions_per_user, and activity_frequency.
+    
         Args:
             usage: Raw usage actions dataframe
             

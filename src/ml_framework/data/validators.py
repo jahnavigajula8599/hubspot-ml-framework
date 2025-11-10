@@ -7,11 +7,6 @@ This module provides:
 - Data quality profiling (missingness, duplicates, numeric summaries)
 - Intelligent deduplication utilities
 
-The validator is intentionally conservative:
-- Required columns must match exactly.
-- Types are validated with flexible dtype categories (e.g., int32 or int64 accepted).
-- Optional columns may be validated for type if definitions are provided.
-- Composite unique keys can be validated with warnings instead of hard errors.
 """
 
 import pandas as pd
@@ -21,9 +16,6 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------
-#  SCHEMA VALIDATOR
-# ---------------------------------------------------------
 class SchemaValidator:
     """
     Validate dataframe schemas against expected structure.
@@ -236,9 +228,6 @@ class SchemaValidator:
         return warnings
 
 
-# ---------------------------------------------------------
-#  DATA QUALITY PROFILER
-# ---------------------------------------------------------
 class DataQualityProfiler:
     """
     Produce structured data-quality metrics & logs:
@@ -304,10 +293,6 @@ class DataQualityProfiler:
 
         logger.info("=" * 70 + "\n")
 
-
-# ---------------------------------------------------------
-#  SMART DEDUPLICATION
-# ---------------------------------------------------------
 class DataDeduplicator:
     """
     Deduplicate rows intelligently based on key columns.

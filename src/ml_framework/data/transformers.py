@@ -226,13 +226,8 @@ class EmployeeRangeOrdinalEncoder:
 class IndustryEncoder:
     """
     Custom transformer for INDUSTRY feature.
-    
-    One-hot encodes industry while handling rare categories.
-    
-    Examples:
-        >>> encoder = IndustryEncoder(min_frequency=10)
-        >>> encoder.fit(X_train)
-        >>> X_train = encoder.transform(X_train)
+    One-hot encodes industry categories that appear >= min_frequency times.
+    Rare categories and NaN values are grouped into 'Other' category.
     """
     
     def __init__(self, min_frequency: int = 5):
