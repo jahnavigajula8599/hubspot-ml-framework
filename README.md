@@ -34,7 +34,7 @@ This framework implements a complete ML pipeline from data ingestion to model se
 - Performance metrics logging
 
 **Serving** (`src/ml_framework/serving/`)
-- FastAPI REST API
+- FastAPI API
 - Pydantic validation for request/response
 - Single and batch prediction endpoints
 - Health monitoring
@@ -70,7 +70,6 @@ Three-layer validation approach:
 ### Installation
 ```bash
 pip install -r requirements.txt
-pip install -r requirements-dev.txt  # For development
 ```
 
 ### Training a Model
@@ -273,5 +272,3 @@ Proprietary - HubSpot Assessment Project
 
 Jahnavi Gajula
 ```
-
----
