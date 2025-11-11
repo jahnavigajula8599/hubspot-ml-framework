@@ -8,9 +8,7 @@ experiment:
   tags: ["baseline", "logistic_regression"]
   run_name: "run_01"  # Auto-generated if null (or specify like "run_001")
   data_version: "v1"  # Track which version of data you're using
-
-  # MLflow configuration
-  mlflow_tracking_uri: "./mlruns"
+  mlflow_tracking_uri: "mlruns" # MLflow configuration
 
 # Data configuration
 data:

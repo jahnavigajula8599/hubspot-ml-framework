@@ -42,6 +42,9 @@ sphinxcontrib-napoleon>=0.7      # Google/NumPy docstring style
 
 # Pre-commit hooks
 pre-commit=4.4.0
+
+#Configuration management
+omegaconf
 # ============================================================
 # OPTIONAL DEPENDENCIES (for development)
 # ============================================================

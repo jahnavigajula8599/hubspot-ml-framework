@@ -10,6 +10,8 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
+from ml_framework.serving.predictor import Predictor
+
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
@@ -109,7 +111,14 @@ def get_latest_artifact_dir():
         return None
 
     # Get all experiment directories (exclude hidden dirs)
-    exp_dirs = [d for d in artifacts_dir.iterdir() if d.is_dir() and not d.name.startswith(".")]
+    exp_dirs = [
+        d
+        for d in artifacts_dir.iterdir()
+        if d.is_dir()
+        and not d.name.startswith(".")
+        and d.name not in ["logs", "data_quality"]
+        and (d / "models").exists()
+    ]
 
     if not exp_dirs:
         logger.warning("No experiment directories found in artifacts/")
@@ -163,43 +172,65 @@ if (current_dir / "src").exists():
 
 model_service = None  # Initialize as None
 
+# Always print to console
+print("\n" + "=" * 80)
+print("INITIALIZING MODEL SERVICE")
+print("=" * 80)
+
 try:
     logger.info("=" * 60)
     logger.info("INITIALIZING MODEL SERVICE")
     logger.info("=" * 60)
 
+    print("🔍 Looking for latest model directory...")
     latest_dir = get_latest_artifact_dir()
+    print(f"Found: {latest_dir}")
 
     if latest_dir:
         logger.info(f"Loading model from: {latest_dir}")
-
-        from ml_framework.serving import Predictor
+        print(f"Loading model from: {latest_dir}")
 
         predictor = Predictor.from_artifact_dir(str(latest_dir))
+        print("Predictor loaded")
 
         model_service = ModelService(predictor)
-        logger.info(f" Model loaded successfully!")
-        logger.info(f"   Version: {model_service.model_version}")
+        logger.info(f"Model loaded successfully!")
+        logger.info(f"Version: {model_service.model_version}")
         logger.info("=" * 60)
+
+        print(f"MODEL LOADED SUCCESSFULLY!")
+        print(f"Model Version: {model_service.model_version}")
     else:
         logger.error("No trained models found in artifacts/")
         logger.error("   Please train a model first!")
         logger.error("=" * 60)
 
+        print("NO MODEL FOUND!")
+        print("Check artifacts/ directory for trained models")
+
 except Exception as e:
     logger.error("=" * 60)
     logger.error(f"FAILED TO LOAD MODEL: {e}")
     logger.error("=" * 60)
+
+    print(f"FAILED TO LOAD MODEL!")
+    print(f"Error: {e}")
+
     import traceback
 
     logger.error(traceback.format_exc())
+    traceback.print_exc()
     model_service = None
 
 # Log final status
 if model_service is None:
     logger.warning("API will start but predictions will not work!")
+    print("API WILL START WITHOUT MODEL")
 else:
     logger.info("Model service ready for predictions")
+    print("MODEL SERVICE READY FOR PREDICTIONS")
+
+print("=" * 80 + "\n")
 
 
 # ============================================================
