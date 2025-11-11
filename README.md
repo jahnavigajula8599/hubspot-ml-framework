@@ -8,8 +8,8 @@ This framework implements a complete ML pipeline from data ingestion to model se
 - Data validation at multiple stages
 - Configurable experimentation
 - MLflow experiment tracking
-- REST API for predictions
-- Automated testing and documentation
+- Unit testing
+- Automated documentation
 
 ## Architecture
 
