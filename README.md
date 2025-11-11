@@ -1,6 +1,6 @@
 # ML Framework for Customer Conversion Prediction
 
-Production-ready machine learning framework for predicting customer conversion probability. Built for HubSpot assessment.
+HubSpot assessment
 
 ## Overview
 
@@ -209,10 +209,6 @@ Automated linting and formatting:
 # Install pre-commit hooks
 pre-commit install
 
-# Run manually
-black src/
-flake8 src/
-pytest
 ```
 
 Pre-commit hooks run automatically on `git commit`.
