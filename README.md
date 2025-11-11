@@ -9,7 +9,7 @@ This framework implements a complete ML pipeline from data ingestion to model se
 - Configurable experimentation
 - MLflow experiment tracking
 - REST API for predictions
-- Automated testing
+- Automated testing and documentation
 
 ## Architecture
 
@@ -66,6 +66,11 @@ Three-layer validation approach:
    - Data integrity checks
 
 ## Quick Start
+
+### View Documentation
+```bash
+start docs/build/html/index.html
+```
 
 ### Installation
 ```bash
@@ -264,11 +269,6 @@ artifacts/customer_conversion_baseline_YYYYMMDD_HHMMSS/
 - Python 3.8+
 - See `requirements.txt` for package dependencies
 
-## License
-
-Proprietary - HubSpot Assessment Project
-
 ## Author
 
 Jahnavi Gajula
-```
