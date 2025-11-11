@@ -7,7 +7,7 @@ machine learning models.
 Quick Start:
     >>> from ml_framework.training import Trainer
     >>> from ml_framework.utils import load_config
-    >>> 
+    >>>
     >>> config = load_config('configs/config.yaml')
     >>> trainer = Trainer(config)
     >>> results = trainer.train()
@@ -15,16 +15,12 @@ Quick Start:
 
 __version__ = "0.1.0"
 
-from . import data
-from . import models
-from . import training
-from . import serving
-from . import utils
+from . import data, models, serving, training, utils
 
 __all__ = [
-    'data',
-    'models',
-    'training',
-    'serving',
-    'utils',
+    "data",
+    "models",
+    "training",
+    "serving",
+    "utils",
 ]

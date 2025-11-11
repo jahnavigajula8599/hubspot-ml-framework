@@ -8,9 +8,9 @@ experiment:
   tags: ["baseline", "logistic_regression"]
   run_name: "run_01"  # Auto-generated if null (or specify like "run_001")
   data_version: "v1"  # Track which version of data you're using
-  
+
   # MLflow configuration
-  mlflow_tracking_uri: "./mlruns"  
+  mlflow_tracking_uri: "./mlruns"
 
 # Data configuration
 data:
@@ -18,23 +18,23 @@ data:
   customers_path: "data/customers.csv"
   noncustomers_path: "data/noncustomers.csv"
   usage_actions_path: "data/usage_actions.csv"
-  
+
   # Train/test split
   test_size: 0.2
   random_state: 42
   stratify: true  # Stratify by target variable
-  
+
   # Feature engineering
   features:
     # Aggregation window for usage features (in days)
     lookback_days: 30
     industry_min_frequency: 5
-    
+
     # Feature scaling
     scaling:
       method: "standard"  # Options: standard, minmax, robust, none
       exclude_columns: []  # Columns to exclude from scaling
-    
+
     missing_values:
       strategy: "auto" #setting auto means numeric → median and categorical → mode
       constant_value: -1
@@ -43,7 +43,7 @@ data:
 model:
   # Model type: logistic_regression, random_forest, xgboost, lightgbm
   type: "logistic_regression"
-  
+
   # Model hyperparameters (specific to model type)
   hyperparameters:
     # Logistic Regression
@@ -52,19 +52,19 @@ model:
     solver: "lbfgs"
     max_iter: 1000
     class_weight: "balanced"  # Handle class imbalance
-    
+
     # # Random Forest (example - uncomment to use)
     # n_estimators: 100
     # max_depth: 10
     # min_samples_split: 5
     # class_weight: "balanced"
-    
+
     # # XGBoost (example - uncomment to use)
     # n_estimators: 100
     # learning_rate: 0.1
     # max_depth: 6
     # scale_pos_weight: 1.0  # For imbalanced data
-    
+
     # # LightGBM (example - uncomment to use)
     # n_estimators: 100
     # learning_rate: 0.1
@@ -78,12 +78,12 @@ training:
     enabled: true
     n_folds: 5
     stratified: true
-  
+
   # Early stopping (for tree-based models)
   early_stopping:
     enabled: false
     rounds: 10
-  
+
   # Evaluation metrics to track
   metrics:
     - "accuracy"
@@ -92,7 +92,7 @@ training:
     - "f1"
     - "roc_auc"
     - "average_precision"
-  
+
   # Classification threshold (for binary classification)
   threshold: 0.5
 
@@ -100,10 +100,10 @@ training:
 serving:
   # Output format for predictions
   output_format: "csv"  # Options: csv, json, parquet
-  
+
   # Include prediction probabilities
   include_probabilities: true
-  
+
   # Batch size for large-scale inference
   batch_size: 1000
 
@@ -111,13 +111,13 @@ serving:
 artifacts:
   # Base directory for all artifacts
   base_dir: "artifacts"
-  
+
   # Subdirectories
   models_dir: "models"
   metrics_dir: "metrics"
   plots_dir: "plots"
   predictions_dir: "predictions"
-  
+
   # Save artifacts
   save:
     model: true
@@ -126,7 +126,7 @@ artifacts:
     confusion_matrix: true
     roc_curve: true
     predictions: true
-  
+
   # Model versioning strategy
   versioning:
     strategy: "timestamp"  # Options: timestamp, sequential, git_hash

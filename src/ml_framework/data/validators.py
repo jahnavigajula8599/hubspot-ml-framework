@@ -9,10 +9,12 @@ This module provides:
 
 """
 
-import pandas as pd
-from typing import Dict, List, Optional, Tuple, Union
 import logging
-from pathlib import Path 
+from pathlib import Path
+from typing import Dict, List, Tuple, Union
+
+import pandas as pd
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,9 +41,8 @@ class SchemaValidator:
             },
             # Hard uniqueness (true customers have exactly one row per id)
             "unique_keys": [("id",)],
-            "soft_unique_keys": []  # No soft keys for customers
+            "soft_unique_keys": [],  # No soft keys for customers
         },
-
         "noncustomers": {
             "required_columns": ["id"],
             "optional_columns": ["ALEXA_RANK", "EMPLOYEE_RANGE", "INDUSTRY"],
@@ -50,16 +51,19 @@ class SchemaValidator:
             },
             # Prospects may have duplicated ids due to ingestion → treat as soft validation
             "unique_keys": [],
-            "soft_unique_keys": [("id",)]  # Warn instead of error
+            "soft_unique_keys": [("id",)],  # Warn instead of error
         },
-
         "usage_actions": {
             "required_columns": ["id", "WHEN_TIMESTAMP"],
             "optional_columns": [
-                "ACTIONS_CRM_CONTACTS", "ACTIONS_CRM_COMPANIES",
-                "ACTIONS_CRM_DEALS", "ACTIONS_EMAIL",
-                "USERS_CRM_CONTACTS", "USERS_CRM_COMPANIES",
-                "USERS_CRM_DEALS", "USERS_EMAIL"
+                "ACTIONS_CRM_CONTACTS",
+                "ACTIONS_CRM_COMPANIES",
+                "ACTIONS_CRM_DEALS",
+                "ACTIONS_EMAIL",
+                "USERS_CRM_CONTACTS",
+                "USERS_CRM_COMPANIES",
+                "USERS_CRM_DEALS",
+                "USERS_EMAIL",
             ],
             "types": {
                 "id": ["int64", "int32"],
@@ -67,8 +71,8 @@ class SchemaValidator:
             },
             # Soft composite key validation → warn if duplicates exist
             "unique_keys": [],
-            "soft_unique_keys": [("id", "WHEN_TIMESTAMP")]
-        }
+            "soft_unique_keys": [("id", "WHEN_TIMESTAMP")],
+        },
     }
 
     def validate(self, df: pd.DataFrame, schema_name: str) -> bool:
@@ -161,12 +165,16 @@ class SchemaValidator:
         # LOGGING AND FINAL DECISION
         # --------------------------------------------
         if errors:
-            err_msg = f"\n{schema_name} validation FAILED:\n" + "\n".join(f"  ❌ {e}" for e in errors)
+            err_msg = f"\n{schema_name} validation FAILED:\n" + "\n".join(
+                f"  ❌ {e}" for e in errors
+            )
             logger.error(err_msg)
             raise ValueError(err_msg)
 
         if warnings:
-            warn_msg = f"\n{schema_name} validation WARNINGS:\n" + "\n".join(f"  ⚠️  {w}" for w in warnings)
+            warn_msg = f"\n{schema_name} validation WARNINGS:\n" + "\n".join(
+                f"  ⚠️  {w}" for w in warnings
+            )
             logger.warning(warn_msg)
 
         logger.info(f"{schema_name}: Schema validation passed ✔")
@@ -178,7 +186,7 @@ class SchemaValidator:
         Returns list of warnings (non-blocking).
         """
         warnings = []
-        
+
         # Customers: MRR business rules
         if schema_name == "customers":
             if "MRR" in df.columns:
@@ -189,21 +197,26 @@ class SchemaValidator:
                         f"Found {len(invalid_mrr)} customers ({pct:.1f}%) with MRR ≤ 0 "
                         f"(pipeline will clean these)"
                     )
-        
+
         # All companies: ALEXA_RANK must be positive
         if schema_name in ["customers", "noncustomers"]:
             if "ALEXA_RANK" in df.columns:
                 invalid_alexa = df[(df["ALEXA_RANK"] <= 0) & (df["ALEXA_RANK"].notna())]
                 if len(invalid_alexa) > 0:
-                    warnings.append(
-                        f"Found {len(invalid_alexa)} rows with ALEXA_RANK ≤ 0"
-                    )
-            
+                    warnings.append(f"Found {len(invalid_alexa)} rows with ALEXA_RANK ≤ 0")
+
             # EMPLOYEE_RANGE valid categories
             if "EMPLOYEE_RANGE" in df.columns:
                 valid_ranges = [
-                    '1', '2 to 5', '6 to 10', '11 to 25', '26 to 50',
-                    '51 to 200', '201 to 1000', '1001 to 10000', '10,001 or more'
+                    "1",
+                    "2 to 5",
+                    "6 to 10",
+                    "11 to 25",
+                    "26 to 50",
+                    "51 to 200",
+                    "201 to 1000",
+                    "1001 to 10000",
+                    "10,001 or more",
                 ]
                 non_null = df["EMPLOYEE_RANGE"].dropna()
                 invalid_ranges = non_null[~non_null.isin(valid_ranges)]
@@ -213,7 +226,7 @@ class SchemaValidator:
                         f"Found {len(invalid_ranges)} ({pct:.1f}%) rows with "
                         f"invalid EMPLOYEE_RANGE values"
                     )
-        
+
         # Usage: Action counts must be non-negative
         if schema_name == "usage_actions":
             action_cols = [col for col in df.columns if col.startswith("ACTIONS_")]
@@ -221,10 +234,8 @@ class SchemaValidator:
                 if col in df.columns and pd.api.types.is_numeric_dtype(df[col]):
                     negative = df[df[col] < 0]
                     if len(negative) > 0:
-                        warnings.append(
-                            f"Found {len(negative)} negative values in {col}"
-                        )
-        
+                        warnings.append(f"Found {len(negative)} negative values in {col}")
+
         return warnings
 
 
@@ -293,6 +304,7 @@ class DataQualityProfiler:
 
         logger.info("=" * 70 + "\n")
 
+
 class DataDeduplicator:
     """
     Deduplicate rows intelligently based on key columns.
@@ -309,38 +321,38 @@ class DataDeduplicator:
     def deduplicate(
         self,
         df: pd.DataFrame,
-        key_columns: Union[str, List[str]] = 'id',
-        strategy: str = 'most_complete',
+        key_columns: Union[str, List[str]] = "id",
+        strategy: str = "most_complete",
         save_duplicates: bool = True,
-        df_name: str = 'data'
+        df_name: str = "data",
     ) -> pd.DataFrame:
         """
         Remove duplicate rows based on key columns.
-        
+
         Args:
             df: DataFrame to deduplicate
             key_columns: Column(s) to check for duplicates
             strategy: Deduplication strategy
             save_duplicates: Whether to save removed duplicates
             df_name: Name for the saved file
-            
+
         Returns:
             Deduplicated DataFrame
         """
         if isinstance(key_columns, str):
             key_columns = [key_columns]
-        
+
         initial_count = len(df)
-        
+
         # Find duplicates
         duplicates_mask = df.duplicated(subset=key_columns, keep=False)
         duplicates = df[duplicates_mask].copy()
         duplicate_count = duplicates[key_columns[0]].nunique() if len(duplicates) > 0 else 0
-        
+
         if duplicate_count == 0:
             logger.info(f"✓ No duplicates found for key {key_columns}")
             return df
-        
+
         logger.warning(
             f"\n{'='*70}\n"
             f"⚠️  DUPLICATES FOUND: {df_name}\n"
@@ -349,80 +361,82 @@ class DataDeduplicator:
             f"Unique IDs affected: {duplicate_count}\n"
             f"Strategy '{strategy}' will be applied.\n"
         )
-        
+
         # **NEW: Save duplicates before removing**
         if save_duplicates and len(duplicates) > 0:
-            output_dir = Path('artifacts/data_quality')
+            output_dir = Path("artifacts/data_quality")
             output_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Sort by key and add metadata
             duplicates_sorted = duplicates.sort_values(by=key_columns)
-            duplicates_sorted.insert(0, '_duplicate_group', 
-                                    duplicates_sorted.groupby(key_columns).ngroup())
-            
-            output_path = output_dir / f'duplicates_{df_name}.csv'
+            duplicates_sorted.insert(
+                0, "_duplicate_group", duplicates_sorted.groupby(key_columns).ngroup()
+            )
+
+            output_path = output_dir / f"duplicates_{df_name}.csv"
             duplicates_sorted.to_csv(output_path, index=False)
-            
+
             logger.info(f"💾 Saved {len(duplicates)} duplicate rows to: {output_path}")
-            
+
             # Show sample
-            sample = duplicates_sorted[key_columns + ['_duplicate_group']].head(10)
+            sample = duplicates_sorted[key_columns + ["_duplicate_group"]].head(10)
             logger.warning(f"\nSample duplicate groups:\n{sample}\n")
-        
+
         # Apply deduplication strategy
-        if strategy == 'first':
-            df_clean = df.drop_duplicates(subset=key_columns, keep='first')
-        elif strategy == 'last':
-            df_clean = df.drop_duplicates(subset=key_columns, keep='last')
-        elif strategy == 'most_complete':
+        if strategy == "first":
+            df_clean = df.drop_duplicates(subset=key_columns, keep="first")
+        elif strategy == "last":
+            df_clean = df.drop_duplicates(subset=key_columns, keep="last")
+        elif strategy == "most_complete":
             df_clean = self._keep_most_complete(df, key_columns)
         else:
             raise ValueError(f"Unknown strategy: {strategy}")
-        
+
         removed_count = initial_count - len(df_clean)
-        
+
         logger.warning(f"🗑️  Removed {removed_count} duplicate rows")
-        logger.info(f"✓ Retained {len(df_clean)} unique rows ({len(df_clean)/initial_count*100:.2f}%)")
+        logger.info(
+            f"✓ Retained {len(df_clean)} unique rows ({len(df_clean)/initial_count*100:.2f}%)"
+        )
         logger.warning(f"{'='*70}")
-        
+
         return df_clean
-        
+
     def _keep_most_complete(self, df: pd.DataFrame, key_columns: List[str]) -> pd.DataFrame:
         """
         Keep the most complete row for each duplicate group.
-        
+
         "Most complete" = row with fewest missing values.
-        
+
         Args:
             df: DataFrame with duplicates
             key_columns: Columns that define duplicates
-            
+
         Returns:
             DataFrame with duplicates removed (keeping most complete)
         """
+
         def completeness_score(row):
             """Calculate how complete a row is (higher = more complete)."""
             score = 0
             for val in row:
-                if pd.notna(val) and val != '' and val != 0:
+                if pd.notna(val) and val != "" and val != 0:
                     score += 1
             return score
-        
+
         # Add completeness score to each row
         df = df.copy()
-        df['_completeness'] = df.apply(completeness_score, axis=1)
-        
+        df["_completeness"] = df.apply(completeness_score, axis=1)
+
         # Sort by key columns and completeness (descending)
         df_sorted = df.sort_values(
-            by=key_columns + ['_completeness'],
-            ascending=[True] * len(key_columns) + [False]
+            by=key_columns + ["_completeness"], ascending=[True] * len(key_columns) + [False]
         )
-        
+
         # Keep first (most complete) for each key
-        df_clean = df_sorted.drop_duplicates(subset=key_columns, keep='first')
-        
+        df_clean = df_sorted.drop_duplicates(subset=key_columns, keep="first")
+
         # Remove helper column
-        df_clean = df_clean.drop('_completeness', axis=1)
-        
+        df_clean = df_clean.drop("_completeness", axis=1)
+
         return df_clean
-       

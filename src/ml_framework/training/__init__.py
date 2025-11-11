@@ -4,10 +4,10 @@ Training and evaluation modules.
 Orchestrates model training, evaluation, and artifact management.
 """
 
-from .trainer import Trainer
 from .evaluator import Evaluator
+from .trainer import Trainer
 
 __all__ = [
-    'Trainer',
-    'Evaluator',
+    "Trainer",
+    "Evaluator",
 ]
