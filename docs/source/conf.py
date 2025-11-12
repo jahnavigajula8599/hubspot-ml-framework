@@ -3,6 +3,12 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+# Add the project root to the path so Sphinx can find the ml_framework module
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath("../../src"))
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 

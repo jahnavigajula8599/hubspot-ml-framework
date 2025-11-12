@@ -5,35 +5,33 @@ The data module handles loading, validation, and preprocessing of data.
 
 .. currentmodule:: ml_framework.data
 
-DataLoader
-----------
+HubSpotDataLoader
+------------------
 
-.. autoclass:: DataLoader
+.. autoclass:: HubSpotDataLoader
    :members:
    :undoc-members:
    :show-inheritance:
-   :special-members: __init__
-
-   .. rubric:: Methods
-
-   .. autosummary::
       :nosignatures:
 
       load_data
-      merge_data
-      _validate_data
+      load_and_prepare
+      get_features_and_target
+      _aggregate_usage_features
+      _validate_customer_mrr
 
    **Example Usage:**
 
    .. code-block:: python
-
-      from ml_framework.data import DataLoader
-      from ml_framework.utils import load_config
-
-      config = load_config('configs/config.yaml')
-      loader = DataLoader(config)
-      company_df, activity_df = loader.load_data()
-      merged_df = loader.merge_data(company_df, activity_df)
+      from ml_framework.data import HubSpotDataLoader
+      loader = HubSpotDataLoader(
+          customers_path='data/customers.csv',
+          noncustomers_path='data/noncustomers.csv',
+          usage_path='data/usage.csv',
+          lookback_days=30
+      )
+      df = loader.load_data()
+      X, y = loader.get_features_and_target(df)
 
 DataPreprocessor
 ----------------
