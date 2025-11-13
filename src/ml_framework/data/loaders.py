@@ -95,14 +95,14 @@ class HubSpotDataLoader:
 
         # Validate schemas
         if self.validate_schema:
-            logger.info("\n🔍 Validating schemas...")
+            logger.info("\nValidating schemas...")
             self.validator.validate(customers, "customers")
             self.validator.validate(noncustomers, "noncustomers")
             self.validator.validate(usage, "usage_actions")
 
         # Profile data quality
         if self.profile_data:
-            logger.info("\n📊 Profiling data quality...")
+            logger.info("\nProfiling data quality...")
             self.customers_profile = self.profiler.profile(customers, "customers")
             self.noncustomers_profile = self.profiler.profile(noncustomers, "noncustomers")
             self.usage_profile = self.profiler.profile(usage, "usage_actions")
@@ -123,7 +123,7 @@ class HubSpotDataLoader:
                 df_name="noncustomers",
             )
         # Validate and clean MRR business rules
-        logger.info("\n🎯 Validating customer MRR...")
+        logger.info("\nValidating customer MRR...")
         customers, removed_count = self._validate_customer_mrr(customers)
 
         # Add target variable
@@ -133,7 +133,7 @@ class HubSpotDataLoader:
         # Combine customers and non-customers
         companies = pd.concat([customers, noncustomers], ignore_index=True)
 
-        logger.info(f"\n✅ Total companies: {len(companies)}")
+        logger.info(f"\nTotal companies: {len(companies)}")
 
         # Aggregate usage features
         usage_features = self._aggregate_usage_features(usage)
@@ -311,7 +311,7 @@ class HubSpotDataLoader:
         if invalid_count > 0:
             logger.warning(
                 f"\n{'='*70}\n"
-                f"⚠️  Found {invalid_count} customers with MRR <= 0 ({invalid_count/original_count*100:.2f}%)\n"
+                f"Found {invalid_count} customers with MRR <= 0 ({invalid_count/original_count*100:.2f}%)\n"
                 f"{'='*70}\n"
                 f"Business rule: Customers (is_customer = 1) must have MRR > 0\n"
             )

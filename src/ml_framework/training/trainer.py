@@ -570,6 +570,10 @@ class Trainer:
                 **eval_results,
                 "cv_results": cv_results,
                 "artifact_dir": str(self.artifact_dir),
+                "model_path": str(
+                    self.artifact_dir / self.config.artifacts.models_dir / "model.joblib"
+                ),
+                "run_id": mlflow.active_run().info.run_id,
             }
 
             # Save artifacts

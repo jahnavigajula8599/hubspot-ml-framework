@@ -165,15 +165,13 @@ class SchemaValidator:
         # LOGGING AND FINAL DECISION
         # --------------------------------------------
         if errors:
-            err_msg = f"\n{schema_name} validation FAILED:\n" + "\n".join(
-                f"  ❌ {e}" for e in errors
-            )
+            err_msg = f"\n{schema_name} validation FAILED:\n" + "\n".join(f"{e}" for e in errors)
             logger.error(err_msg)
             raise ValueError(err_msg)
 
         if warnings:
             warn_msg = f"\n{schema_name} validation WARNINGS:\n" + "\n".join(
-                f"  ⚠️  {w}" for w in warnings
+                f"{w}" for w in warnings
             )
             logger.warning(warn_msg)
 
