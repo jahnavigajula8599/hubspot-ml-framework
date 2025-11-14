@@ -44,6 +44,29 @@ This framework implements a complete ML pipeline from data ingestion to model se
 - Structured logging
 - Helper functions
 
+## Entity Relationship Diagrams
+
+Comprehensive entity relationship diagrams (ERDs) are available to help understand the system architecture:
+
+**Documentation:**
+- **Main ERD Document**: `docs/ENTITY_RELATIONSHIP_DIAGRAM.md`
+  - Data Model ERD (Company, UsageAction, AggregatedFeatures)
+  - ML Pipeline Components ERD
+  - Data Flow Diagrams
+  - Component Hierarchy
+  - API Schema
+
+**Visual Diagrams:**
+- Run `python scripts/generate_erd.py` to generate PNG/SVG diagrams (requires Graphviz)
+- View Mermaid diagrams on GitHub or in VS Code with Mermaid extension
+- See `docs/diagrams/README.md` for viewing instructions
+
+**Quick Reference:**
+```
+Data: Company (1) ──── (N) UsageAction ──── (1:1) AggregatedFeatures
+ML:   Config → Trainer → Model → Evaluator → Artifact → Predictor → API
+```
+
 ## Data Validation Strategy
 
 Three-layer validation approach:
